@@ -3,7 +3,10 @@
     "php": ">=7.4.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.6.12"
+    "phpunit/phpunit": "^9.6.12",
+    "ext-simplexml": "*",
+    "ext-libxml": "*",
+    "ext-dom": "*"
   },
   "autoload-dev": {
     "psr-4": {
