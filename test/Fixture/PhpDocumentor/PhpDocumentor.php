@@ -23,11 +23,16 @@ readonly class PhpDocumentor
 
     public function document(string $path): string
     {
-        $this->phpDocumentorXml($path);
+        $this->phpDocumentorXml($path, $this->working->join('output'), 'xml');
         return \file_get_contents($this->working->join('output/structure.xml'));
     }
 
-    private function phpDocumentorXml(string $input): void
+    public function renderHtml(string $inputDirectory, string $outputDirectory): void
+    {
+        $this->phpDocumentorXml($inputDirectory, $outputDirectory, 'default');
+    }
+
+    private function phpDocumentorXml(string $input, $output, string $template): void
     {
         if (\is_file($input)) {
             $inputArgs = ['-d', \dirName($input), '-f', \baseName($input)];
@@ -38,8 +43,8 @@ readonly class PhpDocumentor
             $this->phpExecutablePath(),
             $this->phpDocumentor, 'run',
             ...$inputArgs,
-            '-t', $this->working->join('output'),
-            '--template', 'xml',
+            '-t', $output,
+            '--template', $template,
         ]);
     }
 
