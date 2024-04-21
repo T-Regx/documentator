@@ -3,6 +3,7 @@ namespace Test\Unit;
 
 use Documentary\Project;
 use PHPUnit\Framework\TestCase;
+use Test\Fixture\File\File;
 use Test\Fixture\PhpDocumentor\PhpDocumentor;
 use Test\Fixture\Xml\Xml;
 
@@ -27,39 +28,39 @@ class SourceCodeTest extends TestCase
         '));
     }
 
-    private function assertIsDocumented(string $directory): void
+    private function assertIsDocumented(File $project): void
     {
-        $this->document($directory, 'Summary.');
-        if ($this->classSummary($directory) !== 'Summary.') {
+        $this->document($project, 'Summary.');
+        if ($this->classSummary($project) !== 'Summary.') {
             $this->fail('Failed to assert that source code was properly documented.');
         } else {
             $this->assertTrue(true);
         }
     }
 
-    private function document(string $directory, string $summary): void
+    private function document(File $projectLocation, string $summary): void
     {
-        $project = new Project($directory);
+        $project = new Project($projectLocation->path);
         $project->addClassSummary($summary, null);
     }
 
-    private function sourceCode(string $sourceCode): string
+    private function sourceCode(string $sourceCode): File
     {
-        $file = \sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'document' . DIRECTORY_SEPARATOR . 'file.php';
-        \file_put_contents($file, $sourceCode);
+        $file = File::temporaryDirectory()->join('file.php');
+        $file->write($sourceCode);
         return $file;
     }
 
-    private function classSummary(string $directory): string
+    private function classSummary(File $sourceCode): string
     {
-        return $this->phpDocumentorField($directory,
+        return $this->phpDocumentorField($sourceCode,
             '/project/file/class/docblock/description');
     }
 
-    private function phpDocumentorField(string $inputDirectory, string $xPath): string
+    private function phpDocumentorField(File $sourceCode, string $xPath): string
     {
-        $documentor = new PhpDocumentor(\sys_get_temp_dir());
-        $documentorOutput = new Xml($documentor->document($inputDirectory));
+        $documentor = new PhpDocumentor(File::temporaryDirectory());
+        $documentorOutput = new Xml($documentor->document($sourceCode));
         return $documentorOutput->find($xPath);
     }
 }

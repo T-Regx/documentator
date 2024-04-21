@@ -2,6 +2,7 @@
 namespace Test\Fixture\PhpDocumentor;
 
 use PHPUnit\Framework\TestCase;
+use Test\Fixture\File\File;
 
 class PhpDocumentorTest extends TestCase
 {
@@ -14,7 +15,7 @@ class PhpDocumentorTest extends TestCase
      */
     public function phpDocumentor(): void
     {
-        $this->phpDocumentor = new PhpDocumentor(\sys_get_temp_dir());
+        $this->phpDocumentor = new PhpDocumentor(File::temporaryDirectory());
     }
 
     /**
@@ -61,12 +62,12 @@ class PhpDocumentorTest extends TestCase
      */
     public function documentFileIgnoreOtherFiles(): void
     {
-        $path = $this->directoryWithFiles('directory', [
+        $directory = $this->directoryWithFiles('directory', [
             'file.php'  => $this->sourceCode('Selected'),
             'other.php' => $this->sourceCode('other'),
         ]);
 
-        $output = $this->phpDocumentor->document($this->path([$path, 'file.php']));
+        $output = $this->phpDocumentor->document($directory->join('file.php'));
 
         $this->assertSame(
             ['Selected'],

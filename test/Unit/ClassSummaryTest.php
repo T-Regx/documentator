@@ -3,6 +3,7 @@ namespace Test\Unit;
 
 use Documentary\Project;
 use PHPUnit\Framework\TestCase;
+use Test\Fixture\File\File;
 use Test\Fixture\PhpDocumentor\PhpDocumentor;
 use Test\Fixture\Xml\Xml;
 
@@ -16,7 +17,7 @@ class ClassSummaryTest extends TestCase
         // given
         $file = $this->sourceCodeFile();
         // when
-        $project = new Project($file);
+        $project = new Project($file->path);
         $project->addClassSummary('Summary.', null);
         // then
         $this->assertSame('Summary.', $this->classSummary($file));
@@ -67,12 +68,12 @@ class ClassSummaryTest extends TestCase
     public function summaryTrailingNewline()
     {
         // given
-        $file = $this->sourceCodeFile();
+        $sourceCode = $this->sourceCodeFile();
         // when
-        $project = new Project($file);
+        $project = new Project($sourceCode->path);
         $project->addClassSummary("Summary.\n", null);
         // then
-        $this->assertSame('Summary.', $this->classSummary($file));
+        $this->assertSame('Summary.', $this->classSummary($sourceCode));
     }
 
     /**
@@ -83,35 +84,40 @@ class ClassSummaryTest extends TestCase
         // given
         $file = $this->sourceCodeFile();
         // when
-        $project = new Project($file);
+        $project = new Project($file->path);
         $project->addClassSummary('Summary.', 'This is a description.');
         // then
         $this->assertSame('This is a description.', $this->classDescription($file));
     }
 
-    private function classSummary(string $path): string
+    private function classSummary(File $sourceCode): string
     {
-        return $this->phpDocumentorField($path,
+        return $this->phpDocumentorField($sourceCode,
             '/project/file/class/docblock/description');
     }
 
-    private function classDescription(string $path): string
+    private function classDescription(File $sourceCode): string
     {
-        return $this->phpDocumentorField($path,
+        return $this->phpDocumentorField($sourceCode,
             '/project/file/class/docblock/long-description');
     }
 
-    private function phpDocumentorField(string $path, string $xPath): string
+    private function phpDocumentorField(File $sourceCode, string $xPath): string
     {
-        $documentor = new PhpDocumentor(\sys_get_temp_dir());
-        $output = new Xml($documentor->document($path));
+        $documentor = new PhpDocumentor(File::temporaryDirectory());
+        $output = new Xml($documentor->document($sourceCode));
         return $output->find($xPath);
     }
 
-    private function sourceCodeFile(): string
+    private function sourceCodeFile(): File
     {
-        $path = \sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'document' . DIRECTORY_SEPARATOR . 'file.php';
-        \file_put_contents($path, '<?php class Foo {}');
-        return $path;
+        return $this->fileWithContent('<?php class Foo {}');
+    }
+
+    private function fileWithContent(string $content): File
+    {
+        $file = File::temporaryDirectory()->join('file.php');
+        $file->write($content);
+        return $file;
     }
 }
