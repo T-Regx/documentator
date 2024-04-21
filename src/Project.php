@@ -1,6 +1,12 @@
 <?php
 namespace Documentary;
 
+use PhpParser\Lexer;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\CloningVisitor;
+use PhpParser\Parser\Php7;
+use PhpParser\PrettyPrinter\Standard;
+
 readonly class Project
 {
     public function __construct(private string $path)
@@ -36,10 +42,14 @@ readonly class Project
 
     private function documentedSourceCode(string $sourceCode, string $summary, ?string $description): string
     {
-        return \subStr_replace(
-            $sourceCode,
-            "/** $summary\n$description */",
-            6,
-            0);
+        $parser = new Php7(new Lexer());
+        $ast = $parser->parse($sourceCode);
+        $traverser = new NodeTraverser();
+        $traverser->addVisitor(new CloningVisitor());
+        $traverser->addVisitor(new SetPhpDoc("/** $summary\n$description */"));
+        return (new Standard)->printFormatPreserving(
+            $traverser->traverse($ast),
+            $ast,
+            $parser->getTokens());
     }
 }
