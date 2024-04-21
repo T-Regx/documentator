@@ -36,9 +36,36 @@ readonly class Project
 
     private function documentFile(string $className, string $summary, ?string $description): void
     {
-        $content = \file_get_contents($this->path);
-        \file_put_contents($this->path,
-            $this->documentedSourceCode($content, $className, $summary, $description));
+        foreach ($this->projectFiles() as $path) {
+            $content = \file_get_contents($path);
+            \file_put_contents($path,
+                $this->documentedSourceCode($content, $className, $summary, $description));
+        }
+    }
+
+    private function projectFiles(): array
+    {
+        if (\is_dir($this->path)) {
+            return $this->children($this->path);
+        }
+        return [$this->path];
+    }
+
+    private function children(string $path): array
+    {
+        $result = [];
+        foreach (\scanDir($path) as $child) {
+            if (\in_array($child, ['.', '..'])) {
+                continue;
+            }
+            $childPath = $path . \DIRECTORY_SEPARATOR . $child;
+            if (\is_file($childPath)) {
+                $result[] = $childPath;
+            } else {
+                \array_push($result, ...$this->children($childPath));
+            }
+        }
+        return $result;
     }
 
     private function documentedSourceCode(string $sourceCode, string $className, string $summary, ?string $description): string
