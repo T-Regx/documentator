@@ -13,7 +13,9 @@ class SourceCodeTest extends TestCase
      */
     public function classNoNamespace()
     {
-        $this->assertIsDocumented($this->sourceCode('<?php class Foo {}'));
+        $this->assertIsDocumented(
+            'Foo',
+            $this->sourceCode('<?php class Foo {}'));
     }
 
     /**
@@ -21,15 +23,14 @@ class SourceCodeTest extends TestCase
      */
     public function classNamespace()
     {
-        $this->assertIsDocumented($this->sourceCode('<?php
-            namespace Foo;
-            class Bar {}
-        '));
+        $this->assertIsDocumented(
+            'Foo\Bar',
+            $this->sourceCode('<?php namespace Foo; class Bar {}'));
     }
 
-    private function assertIsDocumented(File $project): void
+    private function assertIsDocumented(string $className, File $project): void
     {
-        $this->document($project, 'Summary.');
+        $this->document($project, $className, 'Summary.');
         if ($this->classSummary($project) !== 'Summary.') {
             $this->fail('Failed to assert that source code was properly documented.');
         } else {
@@ -37,10 +38,10 @@ class SourceCodeTest extends TestCase
         }
     }
 
-    private function document(File $projectLocation, string $summary): void
+    private function document(File $projectLocation, string $className, string $summary): void
     {
         $project = new Project($projectLocation->path);
-        $project->addClassSummary($summary, null);
+        $project->addClassSummary($className, $summary, null);
     }
 
     private function sourceCode(string $sourceCode): File
