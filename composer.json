@@ -8,6 +8,11 @@
     "ext-libxml": "*",
     "ext-dom": "*"
   },
+  "autoload": {
+    "psr-4": {
+      "Documentary\\": "src/"
+    }
+  },
   "autoload-dev": {
     "psr-4": {
       "Test\\": "test/"
