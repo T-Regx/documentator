@@ -4,8 +4,7 @@ namespace Test\Unit;
 use Documentary\Project;
 use PHPUnit\Framework\TestCase;
 use Test\Fixture\File\File;
-use Test\Fixture\PhpDocumentor\PhpDocumentor;
-use Test\Fixture\Xml\Xml;
+use Test\Fixture\ProjectPreview;
 
 class ClassSummaryTest extends TestCase
 {
@@ -92,21 +91,14 @@ class ClassSummaryTest extends TestCase
 
     private function classSummary(File $sourceCode): string
     {
-        return $this->phpDocumentorField($sourceCode,
-            '/project/file/class/docblock/description');
+        $preview = new ProjectPreview($sourceCode);
+        return $preview->classSummary();
     }
 
     private function classDescription(File $sourceCode): string
     {
-        return $this->phpDocumentorField($sourceCode,
-            '/project/file/class/docblock/long-description');
-    }
-
-    private function phpDocumentorField(File $sourceCode, string $xPath): string
-    {
-        $documentor = new PhpDocumentor(File::temporaryDirectory());
-        $output = new Xml($documentor->document($sourceCode));
-        return $output->find($xPath);
+        $preview = new ProjectPreview($sourceCode);
+        return $preview->classDescription();
     }
 
     private function sourceCodeFile(): File
