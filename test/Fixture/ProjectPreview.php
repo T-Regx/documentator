@@ -20,6 +20,11 @@ readonly class ProjectPreview
         return $this->structure->find('/project/file/class/docblock/description');
     }
 
+    public function classSummaries(): array
+    {
+        return $this->structure->findMany('/project/file/class/docblock/description');
+    }
+
     public function classDescription(): string
     {
         return $this->structure->find('/project/file/class/docblock/long-description');
