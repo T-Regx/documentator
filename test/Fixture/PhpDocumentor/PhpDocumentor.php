@@ -1,51 +1,56 @@
 <?php
 namespace Test\Fixture\PhpDocumentor;
 
-use Test\Fixture\PhpDocumentor\Internal\Directory;
+use Test\Fixture\File\File;
 use Test\Fixture\PhpDocumentor\Internal\Process;
 
 readonly class PhpDocumentor
 {
     private string $phpDocumentor;
-    private Directory $working;
+    private File $working;
 
-    public function __construct(string $workingDirectory)
+    public function __construct(File $workingDirectory)
     {
         $this->phpDocumentor = __DIR__ . '/../../lib/phpDocumentor.phar';
-        $this->working = new Directory($workingDirectory);
+        $this->working = $workingDirectory;
     }
 
     public function documentString(string $sourceCode): string
     {
-        $this->working->write('file.php', $sourceCode);
-        return $this->document($this->working->join('file.php'));
+        $file = $this->working->join('file.php');
+        $file->write($sourceCode);
+        return $this->document($file);
     }
 
-    public function document(string $path): string
+    public function document(File $file): string
     {
-        $this->phpDocumentorXml($path, $this->working->join('output'), 'xml');
-        return \file_get_contents($this->working->join('output/structure.xml'));
+        $output = $this->working->join('output');
+        $this->phpDocumentorXml($file, $output, 'xml');
+        return $output->join('structure.xml')->read();
     }
 
-    public function renderHtml(string $inputDirectory, string $outputDirectory): void
+    public function renderHtml(File $input, string $outputDirectory): void
     {
-        $this->phpDocumentorXml($inputDirectory, $outputDirectory, 'default');
+        $this->phpDocumentorXml($input, new File($outputDirectory), 'default');
     }
 
-    private function phpDocumentorXml(string $input, $output, string $template): void
+    private function phpDocumentorXml(File $input, File $output, string $template): void
     {
-        if (\is_file($input)) {
-            $inputArgs = ['-d', \dirName($input), '-f', \baseName($input)];
-        } else {
-            $inputArgs = ['-d', $input];
-        }
         $this->run([
             $this->phpExecutablePath(),
             $this->phpDocumentor, 'run',
-            ...$inputArgs,
-            '-t', $output,
+            ...$this->inputArgs($input),
+            '-t', $output->path,
             '--template', $template,
         ]);
+    }
+
+    private function inputArgs(File $input): array
+    {
+        if (\is_file($input->path)) {
+            return ['-d', $input->parentDirectory()->path, '-f', $input->baseName()];
+        }
+        return ['-d', $input->path];
     }
 
     private function run(array $shellArguments): void
