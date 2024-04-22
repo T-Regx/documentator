@@ -8,16 +8,26 @@ use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\Parser\Php7;
 use PhpParser\PrettyPrinter\Standard;
 
-readonly class Project
+class Project
 {
-    public function __construct(private string $path)
+    private array $classSummaries;
+
+    public function __construct(readonly private string $path)
     {
+        $this->classSummaries = [];
     }
 
     public function addClassSummary(string $className, string $summary, ?string $description): void
     {
         $this->validateSummary($summary);
-        $this->documentFile($className, $summary, $description);
+        $this->classSummaries[] = [$className, $summary, $description];
+    }
+
+    public function build(): void
+    {
+        foreach ($this->classSummaries as [$className, $summary, $description]) {
+            $this->documentFile($className, $summary, $description);
+        }
     }
 
     private function validateSummary(string $summary): void

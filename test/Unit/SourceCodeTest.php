@@ -42,6 +42,7 @@ class SourceCodeTest extends TestCase
     {
         $project = new Project($projectLocation->path);
         $project->addClassSummary($className, $summary, null);
+        $project->build();
     }
 
     private function sourceCode(string $sourceCode): File

@@ -24,6 +24,7 @@ class MultipleFilesTest extends TestCase
         $project = new Project($projectDirectory->path);
         $project->addClassSummary('Foo', 'Lorem.', null);
         $project->addClassSummary('Bar', 'Ipsum.', null);
+        $project->build();
         // then
         $this->assertSame(
             ['Ipsum.', 'Lorem.'],
@@ -40,6 +41,7 @@ class MultipleFilesTest extends TestCase
         // when
         $project = new Project($directory->path);
         $project->addClassSummary('Foo', 'Winter is coming.', null);
+        $project->build();
         // then
         $this->assertSame(
             'Winter is coming.',
