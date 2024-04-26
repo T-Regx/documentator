@@ -9,29 +9,42 @@ use PhpParser\NodeVisitorAbstract;
 
 class SetPhpDoc extends NodeVisitorAbstract
 {
-    public function __construct(
-        readonly private string $memberName,
-        readonly private string $phpDoc)
+    /** @var callable */
+    private $memberPhpDoc;
+
+    public function __construct(callable $memberPhpDoc)
     {
+        $this->memberPhpDoc = $memberPhpDoc;
     }
 
     public function enterNode(Node $node): void
     {
+        $memberName = $this->memberName($node);
+        if ($memberName) {
+            $this->setPhpDoc($node, $memberName);
+        }
+    }
+
+    private function setPhpDoc(Node $node, string $memberName): void
+    {
+        $phpDoc = ($this->memberPhpDoc)($memberName);
+        if ($phpDoc) {
+            $node->setDocComment(new Doc($phpDoc));
+        }
+    }
+
+    private function memberName(Node $node): ?string
+    {
         if (isset($node->namespacedName)) {
-            if ($node->namespacedName->toCodeString() === $this->memberName) {
-                $node->setDocComment(new Doc($this->phpDoc));
-            }
+            return $node->namespacedName->toCodeString();
         }
         if ($node instanceof ClassMethod) {
-            if ($node->name->toString() === $this->memberName) {
-                $node->setDocComment(new Doc($this->phpDoc));
-            }
+            return $node->name->toString();
         }
         if ($node instanceof Property) {
-            if ($this->propertyName($node) === $this->memberName) {
-                $node->setDocComment(new Doc($this->phpDoc));
-            }
+            return $this->propertyName($node);
         }
+        return null;
     }
 
     private function propertyName(Property $node): string
