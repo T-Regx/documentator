@@ -10,28 +10,28 @@ use PhpParser\PrettyPrinter\Standard;
 
 class Project
 {
-    private array $classSummaries;
+    private array $phpDocs;
 
     public function __construct(readonly private string $path)
     {
-        $this->classSummaries = [];
+        $this->phpDocs = [];
     }
 
-    public function addClassSummary(string $className, string $summary, ?string $description): void
+    public function addSummary(string $memberName, string $summary, ?string $description): void
     {
         $this->validateSummary($summary);
-        $this->classSummaries[] = [$className, "/** $summary\n$description */"];
+        $this->phpDocs[] = [$memberName, "/** $summary\n$description */"];
     }
 
-    public function hideClass(string $className): void
+    public function hide(string $memberName): void
     {
-        $this->classSummaries[] = [$className, "/** @internal */"];
+        $this->phpDocs[] = [$memberName, "/** @internal */"];
     }
 
     public function build(): void
     {
-        foreach ($this->classSummaries as [$className, $phpDoc]) {
-            $this->documentFile($className, $phpDoc);
+        foreach ($this->phpDocs as [$memberName, $phpDoc]) {
+            $this->documentFile($memberName, $phpDoc);
         }
     }
 
@@ -39,22 +39,22 @@ class Project
     {
         $trim = \trim($summary);
         if (\str_contains($trim, "\n")) {
-            throw new \Exception('Failed to document class with multiline summary.');
+            throw new \Exception('Failed to document a member with multiline summary.');
         }
         if (empty($trim)) {
-            throw new \Exception('Failed to document class with blank summary.');
+            throw new \Exception('Failed to document a member with blank summary.');
         }
         if (!\str_ends_with($trim, '.')) {
-            throw new \Exception('Failed to document class with a summary not ending with a period.');
+            throw new \Exception('Failed to document a member with a summary not ending with a period.');
         }
     }
 
-    private function documentFile(string $className, string $phpDoc): void
+    private function documentFile(string $memberName, string $phpDoc): void
     {
         foreach ($this->projectFiles() as $path) {
             $content = \file_get_contents($path);
             \file_put_contents($path,
-                $this->documentedSourceCode($content, $className, $phpDoc));
+                $this->documentedSourceCode($content, $memberName, $phpDoc));
         }
     }
 
@@ -83,14 +83,14 @@ class Project
         return $result;
     }
 
-    private function documentedSourceCode(string $sourceCode, string $className, string $phpDoc): string
+    private function documentedSourceCode(string $sourceCode, string $memberName, string $phpDoc): string
     {
         $parser = new Php7(new Lexer());
         $ast = $parser->parse($sourceCode);
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
-        $traverser->addVisitor(new SetPhpDoc($className, $phpDoc));
+        $traverser->addVisitor(new SetPhpDoc($memberName, $phpDoc));
         return (new Standard)->printFormatPreserving(
             $traverser->traverse($ast),
             $ast,

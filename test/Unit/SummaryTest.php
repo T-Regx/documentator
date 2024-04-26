@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Test\Fixture;
 use Test\Fixture\File\File;
 
-class ClassSummaryTest extends TestCase
+class SummaryTest extends TestCase
 {
     use Fixture\PreviewFixture;
 
@@ -19,7 +19,7 @@ class ClassSummaryTest extends TestCase
         $file = $this->sourceCodeFile();
         // when
         $project = new Project($file->path);
-        $project->addClassSummary('Foo', 'Summary.', null);
+        $project->addSummary('Foo', 'Summary.', null);
         $project->build();
         // then
         $this->assertSame('Summary.', $this->classSummary($file));
@@ -32,10 +32,10 @@ class ClassSummaryTest extends TestCase
     {
         // then
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Failed to document class with blank summary.');
+        $this->expectExceptionMessage('Failed to document a member with blank summary.');
         // when
         $project = $this->project();
-        $project->addClassSummary('Foo', '  ', 'Bar');
+        $project->addSummary('Foo', '  ', 'Bar');
         $project->build();
     }
 
@@ -46,10 +46,10 @@ class ClassSummaryTest extends TestCase
     {
         // then
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Failed to document class with a summary not ending with a period.');
+        $this->expectExceptionMessage('Failed to document a member with a summary not ending with a period.');
         // when
         $project = $this->project();
-        $project->addClassSummary('Foo', 'Word', 'Bar');
+        $project->addSummary('Foo', 'Word', 'Bar');
         $project->build();
     }
 
@@ -60,10 +60,10 @@ class ClassSummaryTest extends TestCase
     {
         // then
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Failed to document class with multiline summary.');
+        $this->expectExceptionMessage('Failed to document a member with multiline summary.');
         // when
         $project = $this->project();
-        $project->addClassSummary('Foo', "Foo\nBar.", 'Bar');
+        $project->addSummary('Foo', "Foo\nBar.", 'Bar');
         $project->build();
     }
 
@@ -76,7 +76,7 @@ class ClassSummaryTest extends TestCase
         $sourceCode = $this->sourceCodeFile();
         // when
         $project = new Project($sourceCode->path);
-        $project->addClassSummary('Foo', "Summary.\n", null);
+        $project->addSummary('Foo', "Summary.\n", null);
         $project->build();
         // then
         $this->assertSame('Summary.', $this->classSummary($sourceCode));
@@ -91,7 +91,7 @@ class ClassSummaryTest extends TestCase
         $file = $this->sourceCodeFile();
         // when
         $project = new Project($file->path);
-        $project->addClassSummary('Foo', 'Summary.', 'This is a description.');
+        $project->addSummary('Foo', 'Summary.', 'This is a description.');
         $project->build();
         // then
         $this->assertSame('This is a description.', $this->classDescription($file));
@@ -106,8 +106,8 @@ class ClassSummaryTest extends TestCase
         $file = $this->fileWithContent('<?php class Foo {} class Bar {}');
         // when
         $project = new Project($file->path);
-        $project->addClassSummary('Foo', 'First.', null);
-        $project->addClassSummary('Bar', 'Second.', null);
+        $project->addSummary('Foo', 'First.', null);
+        $project->addSummary('Bar', 'Second.', null);
         $project->build();
         // then
         $this->assertSame(['First.', 'Second.'], $this->classSummaries($file));

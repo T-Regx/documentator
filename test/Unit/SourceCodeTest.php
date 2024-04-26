@@ -41,7 +41,7 @@ class SourceCodeTest extends TestCase
     private function document(File $projectLocation, string $className, string $summary): void
     {
         $project = new Project($projectLocation->path);
-        $project->addClassSummary($className, $summary, null);
+        $project->addSummary($className, $summary, null);
         $project->build();
     }
 

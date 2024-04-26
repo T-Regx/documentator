@@ -18,8 +18,8 @@ class HideClassTest extends TestCase
         $file = $this->fileWithContent('<?php class Foo {} class Bar {}');
         // when
         $project = new Project($file->path);
-        $project->addClassSummary('Foo', 'Summary.', null);
-        $project->hideClass('Bar');
+        $project->addSummary('Foo', 'Summary.', null);
+        $project->hide('Bar');
         $project->build();
         // then
         $this->assertSame('Summary.', $this->classSummary($file));
