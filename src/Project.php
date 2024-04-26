@@ -20,12 +20,20 @@ class Project
     public function addSummary(string $memberName, string $summary, ?string $description): void
     {
         $this->validateSummary($summary);
-        $this->phpDocs[] = [$memberName, "/** $summary\n$description */"];
+        $this->addPhpDoc($memberName, "/** $summary\n$description */");
     }
 
     public function hide(string $memberName): void
     {
-        $this->phpDocs[] = [$memberName, "/** @internal */"];
+        $this->addPhpDoc($memberName, "/** @internal */");
+    }
+
+    private function addPhpDoc(string $memberName, string $phpDoc): void
+    {
+        if (\array_key_exists($memberName, $this->phpDocs)) {
+            throw new \Exception("Failed to document element '$memberName' with multiple summaries.");
+        }
+        $this->phpDocs[$memberName] = [$memberName, $phpDoc];
     }
 
     public function build(): void
