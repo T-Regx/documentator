@@ -9,7 +9,7 @@ use PhpParser\NodeVisitorAbstract;
 class SetPhpDoc extends NodeVisitorAbstract
 {
     public function __construct(
-        readonly private string $className,
+        readonly private string $memberName,
         readonly private string $phpDoc)
     {
     }
@@ -17,12 +17,12 @@ class SetPhpDoc extends NodeVisitorAbstract
     public function enterNode(Node $node): void
     {
         if (isset($node->namespacedName)) {
-            if ($node->namespacedName->toCodeString() === $this->className) {
+            if ($node->namespacedName->toCodeString() === $this->memberName) {
                 $node->setDocComment(new Doc($this->phpDoc));
             }
         }
         if ($node instanceof ClassMethod) {
-            if ($node->name->toString() === $this->className) {
+            if ($node->name->toString() === $this->memberName) {
                 $node->setDocComment(new Doc($this->phpDoc));
             }
         }

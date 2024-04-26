@@ -18,7 +18,7 @@ class ClassNameNamespaceTest extends TestCase
         $file = $this->fileWithContent('<?php namespace Foo; class Bar {}');
         // when
         $project = new Project($file->path);
-        $project->addClassSummary('Foo\Bar', 'First.', null);
+        $project->addSummary('Foo\Bar', 'First.', null);
         $project->build();
         // then
         $this->assertSame('First.', $this->classSummary($file));
