@@ -20,13 +20,18 @@ class Project
     public function addClassSummary(string $className, string $summary, ?string $description): void
     {
         $this->validateSummary($summary);
-        $this->classSummaries[] = [$className, $summary, $description];
+        $this->classSummaries[] = [$className, "/** $summary\n$description */"];
+    }
+
+    public function hideClass(string $className): void
+    {
+        $this->classSummaries[] = [$className, "/** @internal */"];
     }
 
     public function build(): void
     {
-        foreach ($this->classSummaries as [$className, $summary, $description]) {
-            $this->documentFile($className, $summary, $description);
+        foreach ($this->classSummaries as [$className, $phpDoc]) {
+            $this->documentFile($className, $phpDoc);
         }
     }
 
@@ -44,12 +49,12 @@ class Project
         }
     }
 
-    private function documentFile(string $className, string $summary, ?string $description): void
+    private function documentFile(string $className, string $phpDoc): void
     {
         foreach ($this->projectFiles() as $path) {
             $content = \file_get_contents($path);
             \file_put_contents($path,
-                $this->documentedSourceCode($content, $className, $summary, $description));
+                $this->documentedSourceCode($content, $className, $phpDoc));
         }
     }
 
@@ -78,14 +83,14 @@ class Project
         return $result;
     }
 
-    private function documentedSourceCode(string $sourceCode, string $className, string $summary, ?string $description): string
+    private function documentedSourceCode(string $sourceCode, string $className, string $phpDoc): string
     {
         $parser = new Php7(new Lexer());
         $ast = $parser->parse($sourceCode);
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
-        $traverser->addVisitor(new SetPhpDoc($className, "/** $summary\n$description */"));
+        $traverser->addVisitor(new SetPhpDoc($className, $phpDoc));
         return (new Standard)->printFormatPreserving(
             $traverser->traverse($ast),
             $ast,
