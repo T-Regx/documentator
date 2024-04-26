@@ -11,6 +11,12 @@ trait PreviewFixture
         return $preview->classSummary();
     }
 
+    function methodSummary(File $sourceCode): string
+    {
+        $preview = new ProjectPreview($sourceCode);
+        return $preview->methodSummary();
+    }
+
     function classDescription(File $sourceCode): string
     {
         $preview = new ProjectPreview($sourceCode);
