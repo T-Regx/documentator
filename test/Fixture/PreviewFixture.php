@@ -29,6 +29,18 @@ trait PreviewFixture
         return $preview->classDescription();
     }
 
+    function propertySummary(File $sourceCode): string
+    {
+        $preview = new ProjectPreview($sourceCode);
+        return $preview->propertySummary();
+    }
+
+    function propertySummaries(File $sourceCode): array
+    {
+        $preview = new ProjectPreview($sourceCode);
+        return $preview->propertySummaries();
+    }
+
     function classSummaries(File $sourceCode): array
     {
         $preview = new ProjectPreview($sourceCode);

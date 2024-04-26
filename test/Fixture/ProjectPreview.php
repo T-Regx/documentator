@@ -35,6 +35,16 @@ readonly class ProjectPreview
         return $this->structure->findMany('/project/file/class/docblock/description');
     }
 
+    public function propertySummary(): string
+    {
+        return $this->structure->find('/project/file/class/property/docblock/description');
+    }
+
+    public function propertySummaries(): array
+    {
+        return $this->structure->findMany('/project/file/class/property/docblock/description');
+    }
+
     public function classDescription(): string
     {
         return $this->structure->find('/project/file/class/docblock/long-description');
