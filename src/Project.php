@@ -10,11 +10,13 @@ use PhpParser\PrettyPrinter\Standard;
 
 class Project
 {
+    private ProjectPath $path;
     private array $comments;
 
-    public function __construct(readonly private string $path)
+    public function __construct(string $path)
     {
         $this->comments = [];
+        $this->path = new ProjectPath($path);
     }
 
     public function addSummary(string $memberName, string $summary, ?string $description): void
@@ -38,7 +40,7 @@ class Project
 
     public function build(): void
     {
-        foreach ($this->projectFiles() as $path) {
+        foreach ($this->path->projectFiles() as $path) {
             $content = \file_get_contents($path);
             \file_put_contents($path,
                 $this->documentedSourceCode($content));
@@ -57,31 +59,6 @@ class Project
         if (!\str_ends_with($trim, '.')) {
             throw new \Exception('Failed to document a member with a summary not ending with a period.');
         }
-    }
-
-    private function projectFiles(): array
-    {
-        if (\is_dir($this->path)) {
-            return $this->children($this->path);
-        }
-        return [$this->path];
-    }
-
-    private function children(string $path): array
-    {
-        $result = [];
-        foreach (\scanDir($path) as $child) {
-            if (\in_array($child, ['.', '..'])) {
-                continue;
-            }
-            $childPath = $path . \DIRECTORY_SEPARATOR . $child;
-            if (\is_file($childPath)) {
-                $result[] = $childPath;
-            } else {
-                \array_push($result, ...$this->children($childPath));
-            }
-        }
-        return $result;
     }
 
     private function documentedSourceCode(string $sourceCode): string
