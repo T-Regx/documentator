@@ -47,7 +47,6 @@ class PropertyTest extends TestCase
     {
         $file = $this->fileWithContent('<?php class Foo { var $one, $two; }');
         $project = new Project($file->path);
-        $project->hide('foo');
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Failed to document many properties in a single declaration.');
         $project->build();

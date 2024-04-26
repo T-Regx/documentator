@@ -33,13 +33,15 @@ class Project
         if (\array_key_exists($memberName, $this->phpDocs)) {
             throw new \Exception("Failed to document element '$memberName' with multiple summaries.");
         }
-        $this->phpDocs[$memberName] = [$memberName, $phpDoc];
+        $this->phpDocs[$memberName] = $phpDoc;
     }
 
     public function build(): void
     {
-        foreach ($this->phpDocs as [$memberName, $phpDoc]) {
-            $this->documentFile($memberName, $phpDoc);
+        foreach ($this->projectFiles() as $path) {
+            $content = \file_get_contents($path);
+            \file_put_contents($path,
+                $this->documentedSourceCode($content));
         }
     }
 
@@ -54,15 +56,6 @@ class Project
         }
         if (!\str_ends_with($trim, '.')) {
             throw new \Exception('Failed to document a member with a summary not ending with a period.');
-        }
-    }
-
-    private function documentFile(string $memberName, string $phpDoc): void
-    {
-        foreach ($this->projectFiles() as $path) {
-            $content = \file_get_contents($path);
-            \file_put_contents($path,
-                $this->documentedSourceCode($content, $memberName, $phpDoc));
         }
     }
 
@@ -91,17 +84,22 @@ class Project
         return $result;
     }
 
-    private function documentedSourceCode(string $sourceCode, string $memberName, string $phpDoc): string
+    private function documentedSourceCode(string $sourceCode): string
     {
         $parser = new Php7(new Lexer());
         $ast = $parser->parse($sourceCode);
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
-        $traverser->addVisitor(new SetPhpDoc($memberName, $phpDoc));
+        $traverser->addVisitor(new SetPhpDoc($this->memberPhpDoc(...)));
         return (new Standard)->printFormatPreserving(
             $traverser->traverse($ast),
             $ast,
             $parser->getTokens());
+    }
+
+    private function memberPhpDoc(string $name): ?string
+    {
+        return $this->phpDocs[$name] ?? null;
     }
 }
