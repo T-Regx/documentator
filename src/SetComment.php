@@ -7,29 +7,29 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitorAbstract;
 
-class SetPhpDoc extends NodeVisitorAbstract
+class SetComment extends NodeVisitorAbstract
 {
     /** @var callable */
-    private $memberPhpDoc;
+    private $memberComment;
 
-    public function __construct(callable $memberPhpDoc)
+    public function __construct(callable $memberComment)
     {
-        $this->memberPhpDoc = $memberPhpDoc;
+        $this->memberComment = $memberComment;
     }
 
     public function enterNode(Node $node): void
     {
         $memberName = $this->memberName($node);
         if ($memberName) {
-            $this->setPhpDoc($node, $memberName);
+            $this->setComment($node, $memberName);
         }
     }
 
-    private function setPhpDoc(Node $node, string $memberName): void
+    private function setComment(Node $node, string $memberName): void
     {
-        $phpDoc = ($this->memberPhpDoc)($memberName);
-        if ($phpDoc) {
-            $node->setDocComment(new Doc($phpDoc));
+        $comment = ($this->memberComment)($memberName);
+        if ($comment) {
+            $node->setDocComment(new Doc($comment));
         }
     }
 

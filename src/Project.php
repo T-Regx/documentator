@@ -10,30 +10,30 @@ use PhpParser\PrettyPrinter\Standard;
 
 class Project
 {
-    private array $phpDocs;
+    private array $comments;
 
     public function __construct(readonly private string $path)
     {
-        $this->phpDocs = [];
+        $this->comments = [];
     }
 
     public function addSummary(string $memberName, string $summary, ?string $description): void
     {
         $this->validateSummary($summary);
-        $this->addPhpDoc($memberName, "/** $summary\n$description */");
+        $this->addComment($memberName, "/** $summary\n$description */");
     }
 
     public function hide(string $memberName): void
     {
-        $this->addPhpDoc($memberName, "/** @internal */");
+        $this->addComment($memberName, "/** @internal */");
     }
 
-    private function addPhpDoc(string $memberName, string $phpDoc): void
+    private function addComment(string $memberName, string $comment): void
     {
-        if (\array_key_exists($memberName, $this->phpDocs)) {
+        if (\array_key_exists($memberName, $this->comments)) {
             throw new \Exception("Failed to document element '$memberName' with multiple summaries.");
         }
-        $this->phpDocs[$memberName] = $phpDoc;
+        $this->comments[$memberName] = $comment;
     }
 
     public function build(): void
@@ -91,15 +91,15 @@ class Project
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
-        $traverser->addVisitor(new SetPhpDoc($this->memberPhpDoc(...)));
+        $traverser->addVisitor(new SetComment($this->memberComment(...)));
         return (new Standard)->printFormatPreserving(
             $traverser->traverse($ast),
             $ast,
             $parser->getTokens());
     }
 
-    private function memberPhpDoc(string $name): ?string
+    private function memberComment(string $name): ?string
     {
-        return $this->phpDocs[$name] ?? null;
+        return $this->comments[$name] ?? null;
     }
 }
