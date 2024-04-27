@@ -47,6 +47,9 @@ readonly class PhpDocumentor
 
     private function inputArgs(File $input): array
     {
+        if (!\file_exists($input->path)) {
+            throw new \Exception("Failed to document non-existent file: '$input->path'");
+        }
         if (\is_file($input->path)) {
             return ['-d', $input->parentDirectory()->path, '-f', $input->baseName()];
         }
