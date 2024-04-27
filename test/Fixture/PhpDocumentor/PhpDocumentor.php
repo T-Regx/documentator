@@ -39,7 +39,7 @@ readonly class PhpDocumentor
         $this->run([
             $this->phpExecutablePath(),
             $this->phpDocumentor, 'run',
-            ...$this->inputArgs($input),
+            ...$this->inputArgs($this->abs($input)),
             '-t', $output->path,
             '--template', $template,
         ]);
@@ -51,6 +51,14 @@ readonly class PhpDocumentor
             return ['-d', $input->parentDirectory()->path, '-f', $input->baseName()];
         }
         return ['-d', $input->path];
+    }
+
+    private function abs(File $file): File
+    {
+        if ($file->isAbs()) {
+            return $file;
+        }
+        return (new File(\getCwd()))->join($file->path);
     }
 
     private function run(array $shellArguments): void
