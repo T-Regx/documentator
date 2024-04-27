@@ -63,6 +63,19 @@ class MemberTypeTest extends TestCase
     /**
      * @test
      */
+    public function acceptSameTypeConstant()
+    {
+        // given
+        $this->file->sourceCode(class:'Foo', constants:['BAR']);
+        // when
+        $this->project->singleSummary('BAR', 'Documented.', type:'constant');
+        // then
+        $this->assertSame(['Documented.'], $this->preview->constantSummaries());
+    }
+
+    /**
+     * @test
+     */
     public function acceptSameTypeClass()
     {
         // given
