@@ -5,14 +5,19 @@ class Comments
 {
     private array $comments = [];
 
-    public function get(string $name, string $type): ?string
+    public function get(string $name, string $type, ?string $parent): ?string
     {
-        return $this->comments["$name:$type"] ?? $this->comments["$name:"] ?? null;
+        return
+            $this->comments["$name:$type:$parent"] ??
+            $this->comments["$name:$type:"] ??
+            $this->comments["$name::$parent"] ??
+            $this->comments["$name::"] ??
+            null;
     }
 
-    public function add(string $name, ?string $type, string $comment): void
+    public function add(string $name, ?string $type, ?string $parent, string $comment): void
     {
-        $this->put("$name:$type", $name, $comment);
+        $this->put("$name:$type:$parent", $name, $comment);
     }
 
     private function put(string $key, string $name, string $comment): void

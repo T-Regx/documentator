@@ -14,15 +14,18 @@ readonly class ProjectWrapper
         string $summary,
         string $description = null,
         string $type = null,
+        string $parent = null,
     ): void
     {
-        $this->project->addSummary($memberName, $summary, $description, $type);
+        $this->project->addSummary($memberName,
+            $summary, $description, $type, $parent);
         $this->project->build();
     }
 
-    public function summary(string $memberName, string $summary, string $type = null): void
+    public function summary(string $memberName, string $summary, string $type = null, string $parent = null): void
     {
-        $this->project->addSummary($memberName, $summary, null, $type);
+        $this->project->addSummary($memberName,
+            $summary, null, $type, $parent);
     }
 
     public function hide(string $memberName, string $type = null): void

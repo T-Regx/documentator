@@ -72,6 +72,15 @@ class FileWrapperTest extends TestCase
         $this->assertFile('<?php class a {} class b {}');
     }
 
+    /**
+     * @test
+     */
+    public function classesMethodMany(): void
+    {
+        $this->wrapper->sourceCodeMany(['a', 'b'], method:'foo');
+        $this->assertFile('<?php class a { function foo() {} } class b { function foo() {} }');
+    }
+
     private function assertFile(string $expectedContent): void
     {
         $this->assertSame($expectedContent, $this->file->read());

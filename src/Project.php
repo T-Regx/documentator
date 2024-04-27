@@ -5,6 +5,7 @@ use PhpParser\Lexer;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\CloningVisitor;
 use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\NodeVisitor\ParentConnectingVisitor;
 use PhpParser\Parser\Php7;
 use PhpParser\PrettyPrinter\Standard;
 
@@ -19,15 +20,15 @@ class Project
         $this->comments = new Comments();
     }
 
-    public function addSummary(string $memberName, string $summary, ?string $description, string $type = null): void
+    public function addSummary(string $memberName, string $summary, ?string $description, string $type = null, string $parent = null): void
     {
         $this->validateSummary($summary);
-        $this->comments->add($memberName, $type, "/** $summary\n$description */");
+        $this->comments->add($memberName, $type, $parent, "/** $summary\n$description */");
     }
 
     public function hide(string $memberName, string $type = null): void
     {
-        $this->comments->add($memberName, $type, "/** @internal */");
+        $this->comments->add($memberName, $type, null, "/** @internal */");
     }
 
     public function build(): void
@@ -59,6 +60,7 @@ class Project
         $ast = $parser->parse($sourceCode);
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
+        $traverser->addVisitor(new ParentConnectingVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
         $traverser->addVisitor(new SetComment($this->comments));
         return (new Standard)->printFormatPreserving(
