@@ -19,30 +19,32 @@ class SetComment extends NodeVisitorAbstract
 
     public function enterNode(Node $node): void
     {
-        $memberName = $this->memberName($node);
+        [$memberName, $memberType] = $this->member($node);
         if ($memberName) {
-            $this->setComment($node, $memberName);
+            $this->setComment($node, $memberName, $memberType);
         }
     }
 
-    private function setComment(Node $node, string $memberName): void
+    private function setComment(Node $node, string $memberName, ?string $memberType): void
     {
-        $comment = ($this->memberComment)($memberName);
+        [$comment, $type] = ($this->memberComment)($memberName, $memberType);
         if ($comment) {
-            $node->setDocComment(new Doc($comment));
+            if ($type === null || $type === $memberType) {
+                $node->setDocComment(new Doc($comment));
+            }
         }
     }
 
-    private function memberName(Node $node): ?string
+    private function member(Node $node): ?array
     {
         if (isset($node->namespacedName)) {
-            return $node->namespacedName->toCodeString();
+            return [$node->namespacedName->toCodeString(), 'class'];
         }
         if ($node instanceof ClassMethod) {
-            return $node->name->toString();
+            return [$node->name->toString(), 'method'];
         }
         if ($node instanceof Property) {
-            return $this->propertyName($node);
+            return [$this->propertyName($node), 'property'];
         }
         return null;
     }
