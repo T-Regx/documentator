@@ -1,13 +1,12 @@
 <?php
 namespace Test\Unit;
 
-use Documentary\Project;
 use PHPUnit\Framework\TestCase;
 use Test\Fixture;
 
 class MethodSummaryTest extends TestCase
 {
-    use Fixture\PreviewFixture;
+    use Fixture\Setup\SingleFileProject;
 
     /**
      * @test
@@ -15,13 +14,11 @@ class MethodSummaryTest extends TestCase
     public function test()
     {
         // given
-        $file = $this->fileWithContent('<?php class Foo { function make() {} }');
+        $this->file->sourceCode(class:'Foo', methods:['make']);
         // when
-        $project = new Project($file->path);
-        $project->addSummary('make', 'Method.', null);
-        $project->build();
+        $this->project->singleSummary('make', 'Method.');
         // then
-        $this->assertSame('Method.', $this->methodSummary($file));
+        $this->assertSame(['Method.'], $this->preview->methodSummaries());
     }
 
     /**
@@ -30,13 +27,12 @@ class MethodSummaryTest extends TestCase
     public function summaries()
     {
         // given
-        $file = $this->fileWithContent('<?php class Foo { function car() {} function bike() {} }');
+        $this->file->sourceCode(class:'Foo', methods:['car', 'bike']);
         // when
-        $project = new Project($file->path);
-        $project->addSummary('car', 'One.', null);
-        $project->addSummary('bike', 'Two.', null);
-        $project->build();
+        $this->project->summary('car', 'One.');
+        $this->project->summary('bike', 'Two.');
+        $this->project->build();
         // then
-        $this->assertSame(['One.', 'Two.'], $this->methodSummaries($file));
+        $this->assertSame(['One.', 'Two.'], $this->preview->methodSummaries());
     }
 }

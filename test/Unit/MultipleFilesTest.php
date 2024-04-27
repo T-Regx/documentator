@@ -3,13 +3,11 @@ namespace Test\Unit;
 
 use Documentary\Project;
 use PHPUnit\Framework\TestCase;
-use Test\Fixture;
 use Test\Fixture\File\File;
+use Test\Fixture\Setup\Preview;
 
 class MultipleFilesTest extends TestCase
 {
-    use Fixture\PreviewFixture;
-
     /**
      * @test
      */
@@ -44,8 +42,8 @@ class MultipleFilesTest extends TestCase
         $project->build();
         // then
         $this->assertSame(
-            'Winter is coming.',
-            $this->classSummary($directory));
+            ['Winter is coming.'],
+            $this->classSummaries($directory));
     }
 
     private function sourceCode(string $className): string
@@ -67,5 +65,11 @@ class MultipleFilesTest extends TestCase
         $directory = File::temporaryDirectory()->join(\uniqid());
         $directory->join(...$names)->write($content);
         return $directory;
+    }
+
+    function classSummaries(File $sourceCode): array
+    {
+        $preview = new Preview($sourceCode);
+        return $preview->classSummaries();
     }
 }
