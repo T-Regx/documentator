@@ -47,4 +47,12 @@ readonly class File
     {
         return \baseName($this->path);
     }
+
+    public function isAbs(): bool
+    {
+        if (\subStr($this->path, 0, 3) === 'C:\\') {
+            return true;
+        }
+        return $this->path[0] === '/';
+    }
 }
