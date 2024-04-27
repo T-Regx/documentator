@@ -19,10 +19,10 @@ class Project
         $this->path = new ProjectPath($path);
     }
 
-    public function addSummary(string $memberName, string $summary, ?string $description): void
+    public function addSummary(string $memberName, string $summary, ?string $description, string $type = null): void
     {
         $this->validateSummary($summary);
-        $this->addComment($memberName, "/** $summary\n$description */");
+        $this->addComment($memberName, "/** $summary\n$description */", $type);
     }
 
     public function hide(string $memberName): void
@@ -30,12 +30,12 @@ class Project
         $this->addComment($memberName, "/** @internal */");
     }
 
-    private function addComment(string $memberName, string $comment): void
+    private function addComment(string $memberName, string $comment, string $type = null): void
     {
-        if (\array_key_exists($memberName, $this->comments)) {
+        if (\array_key_exists("$memberName:$type", $this->comments)) {
             throw new \Exception("Failed to document element '$memberName' with multiple summaries.");
         }
-        $this->comments[$memberName] = $comment;
+        $this->comments["$memberName:$type"] = [$comment, $type];
     }
 
     public function build(): void
@@ -75,8 +75,11 @@ class Project
             $parser->getTokens());
     }
 
-    private function memberComment(string $name): ?string
+    private function memberComment(string $name, string $type): ?array
     {
-        return $this->comments[$name] ?? null;
+        if (\array_key_exists("$name:$type", $this->comments)) {
+            return $this->comments["$name:$type"];
+        }
+        return $this->comments["$name:"] ?? null;
     }
 }
