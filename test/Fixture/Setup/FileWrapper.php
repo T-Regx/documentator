@@ -13,16 +13,19 @@ readonly class FileWrapper
         string $namespace = null,
         string $class = null,
         array  $methods = [],
-        array  $properties = []): void
+        array $properties = [],
+        array $constants = []): void
     {
-        $this->write($this->sourceCodeAsString($namespace, $class, $methods, $properties));
+        $this->write($this->sourceCodeAsString(
+            $namespace, $class, $methods, $properties, $constants));
     }
 
-    private function sourceCodeAsString(?string $namespace, ?string $class, array $methods, array $properties): string
+    private function sourceCodeAsString(?string $namespace, ?string $class, array $methods, array $properties, array $constants): string
     {
         $classBody = \implode(' ', [
             ...$this->formatEach($methods, 'function %() {}'),
             ...$this->formatEach($properties, 'var $%;'),
+            ...$this->formatEach($constants, 'const % = 2;'),
         ]);
         return \trim($this->namespace($namespace) . " class $class { $classBody }");
     }

@@ -24,6 +24,11 @@ readonly class Preview
         return $this->structure()->findMany('/project/file/class/method/docblock/description');
     }
 
+    public function constantSummaries(): array
+    {
+        return $this->structure()->findMany('/project/file/class/constant/docblock/description');
+    }
+
     public function classDescription(): string
     {
         return $this->structure()->find('/project/file/class/docblock/long-description');

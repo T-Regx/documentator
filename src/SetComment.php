@@ -3,6 +3,7 @@ namespace Documentary;
 
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
+use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\NodeVisitorAbstract;
@@ -19,7 +20,10 @@ class SetComment extends NodeVisitorAbstract
             $this->comment($node, 'class', $node->namespacedName->toCodeString());
         }
         if ($node instanceof Property) {
-            $this->comment($node, 'property', $this->propertyName($node));
+            $this->comment($node, 'property', $this->propertyName($node->props));
+        }
+        if ($node instanceof ClassConst) {
+            $this->comment($node, 'constant', $this->propertyName($node->consts));
         }
         if ($node instanceof ClassMethod) {
             $this->comment($node, 'method', $node->name->toString());
@@ -34,21 +38,11 @@ class SetComment extends NodeVisitorAbstract
         }
     }
 
-    private function propertyName(Property $node): string
+    private function propertyName(array $declarations): string
     {
-        $names = $this->declarationNames($node);
-        if (\count($names) === 1) {
-            return $names[0];
+        if (\count($declarations) === 1) {
+            return $declarations[0]->name->toString();
         }
         throw new \Exception('Failed to document many properties in a single declaration.');
-    }
-
-    private function declarationNames(Property $node): array
-    {
-        $name = [];
-        foreach ($node->props as $prop) {
-            $name[] = $prop->name->toString();
-        }
-        return $name;
     }
 }
