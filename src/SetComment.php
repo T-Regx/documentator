@@ -32,12 +32,21 @@ class SetComment extends NodeVisitorAbstract
 
     public function comment(Node $node, string $type, string $name): void
     {
-        $comment = $this->comments->get($name, $type);
+        $comment = $this->comments->get($name, $type, $this->parentName($node));
         if ($comment) {
             $node->setDocComment(new Doc($comment));
         } else {
             $node->setAttribute('comments', []);
         }
+    }
+
+    private function parentName(Node $node): ?string
+    {
+        $parent = $node->getAttribute('parent');
+        if ($parent instanceof Node\Stmt\Class_) {
+            return $parent->namespacedName->toCodeString();
+        }
+        return null;
     }
 
     private function propertyName(array $declarations): string

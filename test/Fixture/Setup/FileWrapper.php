@@ -38,9 +38,17 @@ readonly class FileWrapper
         return '';
     }
 
-    public function sourceCodeMany(array $classes): void
+    public function sourceCodeMany(array $classes, string $method = null): void
     {
-        $this->write(\implode(' ', $this->formatEach($classes, 'class % {}')));
+        $this->write(\implode(' ', $this->formatEach($classes, $this->manyFormat($method))));
+    }
+
+    private function manyFormat(?string $method): string
+    {
+        if ($method) {
+            return "class % { function $method() {} }";
+        }
+        return 'class % {}';
     }
 
     private function formatEach(array $values, string $format): array
