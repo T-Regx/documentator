@@ -76,7 +76,7 @@ class MemberTypeTest extends TestCase
     /**
      * @test
      */
-    public function acceptConflictedNamesWithType()
+    public function acceptConflictedNamesWithTypeSummary()
     {
         // given
         $this->file->sourceCode(class:'Foo', methods:['Foo']);
@@ -87,5 +87,36 @@ class MemberTypeTest extends TestCase
         // then
         $this->assertSame(['Method.'], $this->preview->methodSummaries());
         $this->assertSame(['Class.'], $this->preview->classSummaries());
+    }
+
+    /**
+     * @test
+     */
+    public function acceptConflictedNamesWithTypeHide()
+    {
+        // given
+        $this->file->sourceCode(class:'Foo', methods:['Foo']);
+        // when
+        $this->project->hide('Foo', type:'method');
+        $this->project->hide('Foo', type:'class');
+        $this->project->build();
+        // then
+        $this->assertSame([], $this->preview->methodSummaries());
+        $this->assertSame([], $this->preview->classSummaries());
+    }
+
+    /**
+     * @test
+     */
+    public function prioritizeSpecificType()
+    {
+        // given
+        $this->file->sourceCode(class:'Foo', methods:['Foo']);
+        // when
+        $this->project->summary('Foo', 'Specific.', type:'method');
+        $this->project->summary('Foo', 'General.');
+        $this->project->build();
+        // then
+        $this->assertSame(['Specific.'], $this->preview->methodSummaries());
     }
 }

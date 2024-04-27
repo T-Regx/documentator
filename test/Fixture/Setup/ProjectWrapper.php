@@ -25,9 +25,9 @@ readonly class ProjectWrapper
         $this->project->addSummary($memberName, $summary, null, $type);
     }
 
-    public function hide(string $memberName): void
+    public function hide(string $memberName, string $type = null): void
     {
-        $this->project->hide($memberName);
+        $this->project->hide($memberName, $type);
     }
 
     public function build(): void
