@@ -9,44 +9,29 @@ use PhpParser\NodeVisitorAbstract;
 
 class SetComment extends NodeVisitorAbstract
 {
-    /** @var callable */
-    private $memberComment;
-
-    public function __construct(callable $memberComment)
+    public function __construct(readonly private Comments $comments)
     {
-        $this->memberComment = $memberComment;
     }
 
     public function enterNode(Node $node): void
     {
-        [$memberName, $memberType] = $this->member($node);
-        if ($memberName) {
-            $this->setComment($node, $memberName, $memberType);
-        }
-    }
-
-    private function setComment(Node $node, string $memberName, ?string $memberType): void
-    {
-        [$comment, $type] = ($this->memberComment)($memberName, $memberType);
-        if ($comment) {
-            if ($type === null || $type === $memberType) {
-                $node->setDocComment(new Doc($comment));
-            }
-        }
-    }
-
-    private function member(Node $node): ?array
-    {
         if (isset($node->namespacedName)) {
-            return [$node->namespacedName->toCodeString(), 'class'];
-        }
-        if ($node instanceof ClassMethod) {
-            return [$node->name->toString(), 'method'];
+            $this->comment($node, 'class', $node->namespacedName->toCodeString());
         }
         if ($node instanceof Property) {
-            return [$this->propertyName($node), 'property'];
+            $this->comment($node, 'property', $this->propertyName($node));
         }
-        return null;
+        if ($node instanceof ClassMethod) {
+            $this->comment($node, 'method', $node->name->toString());
+        }
+    }
+
+    public function comment(Node $node, string $type, string $name): void
+    {
+        $comment = $this->comments->get($name, $type);
+        if ($comment) {
+            $node->setDocComment(new Doc($comment));
+        }
     }
 
     private function propertyName(Property $node): string

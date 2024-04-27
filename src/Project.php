@@ -11,31 +11,23 @@ use PhpParser\PrettyPrinter\Standard;
 class Project
 {
     private ProjectPath $path;
-    private array $comments;
+    private Comments $comments;
 
     public function __construct(string $path)
     {
-        $this->comments = [];
         $this->path = new ProjectPath($path);
+        $this->comments = new Comments();
     }
 
     public function addSummary(string $memberName, string $summary, ?string $description, string $type = null): void
     {
         $this->validateSummary($summary);
-        $this->addComment($memberName, "/** $summary\n$description */", $type);
+        $this->comments->add($memberName, $type, "/** $summary\n$description */");
     }
 
     public function hide(string $memberName): void
     {
-        $this->addComment($memberName, "/** @internal */");
-    }
-
-    private function addComment(string $memberName, string $comment, string $type = null): void
-    {
-        if (\array_key_exists("$memberName:$type", $this->comments)) {
-            throw new \Exception("Failed to document element '$memberName' with multiple summaries.");
-        }
-        $this->comments["$memberName:$type"] = [$comment, $type];
+        $this->comments->add($memberName, null, "/** @internal */");
     }
 
     public function build(): void
@@ -68,18 +60,10 @@ class Project
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new CloningVisitor());
         $traverser->addVisitor(new NameResolver(null, ['replaceNodes' => false]));
-        $traverser->addVisitor(new SetComment($this->memberComment(...)));
+        $traverser->addVisitor(new SetComment($this->comments));
         return (new Standard)->printFormatPreserving(
             $traverser->traverse($ast),
             $ast,
             $parser->getTokens());
-    }
-
-    private function memberComment(string $name, string $type): ?array
-    {
-        if (\array_key_exists("$name:$type", $this->comments)) {
-            return $this->comments["$name:$type"];
-        }
-        return $this->comments["$name:"] ?? null;
     }
 }
