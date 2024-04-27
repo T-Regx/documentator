@@ -35,6 +35,8 @@ class SetComment extends NodeVisitorAbstract
         $comment = $this->comments->get($name, $type);
         if ($comment) {
             $node->setDocComment(new Doc($comment));
+        } else {
+            $node->setAttribute('comments', []);
         }
     }
 
