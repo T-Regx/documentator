@@ -25,9 +25,9 @@ class Project
         $this->comments->add($memberName, $type, "/** $summary\n$description */");
     }
 
-    public function hide(string $memberName): void
+    public function hide(string $memberName, string $type = null): void
     {
-        $this->comments->add($memberName, null, "/** @internal */");
+        $this->comments->add($memberName, $type, "/** @internal */");
     }
 
     public function build(): void
