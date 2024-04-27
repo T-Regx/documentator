@@ -27,14 +27,14 @@ readonly class File
 
     public function write(string $content): void
     {
-        $this->createDirectoryIfNotExists(\dirName($this->path));
+        $this->parentDirectory()->createDirectory();
         \file_put_contents($this->path, $content);
     }
 
-    private function createDirectoryIfNotExists(string $path): void
+    public function createDirectory(): void
     {
-        if (!\file_exists($path)) {
-            \mkDir($path, recursive:true);
+        if (!\file_exists($this->path)) {
+            \mkDir($this->path, recursive:true);
         }
     }
 
