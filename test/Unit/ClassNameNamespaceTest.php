@@ -1,13 +1,12 @@
 <?php
 namespace Test\Unit;
 
-use Documentary\Project;
 use PHPUnit\Framework\TestCase;
 use Test\Fixture;
 
 class ClassNameNamespaceTest extends TestCase
 {
-    use Fixture\PreviewFixture;
+    use Fixture\Setup\SingleFileProject;
 
     /**
      * @test
@@ -15,12 +14,10 @@ class ClassNameNamespaceTest extends TestCase
     public function summaryByClassNameNamespace()
     {
         // given
-        $file = $this->fileWithContent('<?php namespace Foo; class Bar {}');
+        $this->file->sourceCode(namespace:'Foo', class:'Bar');
         // when
-        $project = new Project($file->path);
-        $project->addSummary('Foo\Bar', 'First.', null);
-        $project->build();
+        $this->project->singleSummary('Foo\Bar', 'First.');
         // then
-        $this->assertSame('First.', $this->classSummary($file));
+        $this->assertSame(['First.'], $this->preview->classSummaries());
     }
 }

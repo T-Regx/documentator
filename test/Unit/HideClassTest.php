@@ -1,13 +1,12 @@
 <?php
 namespace Test\Unit;
 
-use Documentary\Project;
 use PHPUnit\Framework\TestCase;
 use Test\Fixture;
 
 class HideClassTest extends TestCase
 {
-    use Fixture\PreviewFixture;
+    use Fixture\Setup\SingleFileProject;
 
     /**
      * @test
@@ -15,13 +14,12 @@ class HideClassTest extends TestCase
     public function hideClass()
     {
         // given
-        $file = $this->fileWithContent('<?php class Foo {} class Bar {}');
+        $this->file->sourceCodeMany(['Foo', 'Bar']);
         // when
-        $project = new Project($file->path);
-        $project->addSummary('Foo', 'Summary.', null);
-        $project->hide('Bar');
-        $project->build();
+        $this->project->summary('Foo', 'Summary.');
+        $this->project->hide('Bar');
+        $this->project->build();
         // then
-        $this->assertSame('Summary.', $this->classSummary($file));
+        $this->assertSame(['Summary.'], $this->preview->classSummaries());
     }
 }

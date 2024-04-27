@@ -1,21 +1,24 @@
 <?php
 namespace Test\Unit;
 
-use Documentary\Project;
 use PHPUnit\Framework\TestCase;
-use Test\Fixture\File\File;
-use Test\Fixture\ProjectPreview;
+use Test\Fixture;
 
 class SourceCodeTest extends TestCase
 {
+    use Fixture\Setup\SingleFileProject;
+
     /**
      * @test
      */
     public function classNoNamespace()
     {
-        $this->assertIsDocumented(
-            'Foo',
-            $this->sourceCode('<?php class Foo {}'));
+        // given
+        $this->file->sourceCode(class:'Foo');
+        // when
+        $this->documentClass('Foo');
+        // then
+        $this->assertClassDocumented();
     }
 
     /**
@@ -23,38 +26,21 @@ class SourceCodeTest extends TestCase
      */
     public function classNamespace()
     {
-        $this->assertIsDocumented(
-            'Foo\Bar',
-            $this->sourceCode('<?php namespace Foo; class Bar {}'));
+        // given
+        $this->file->sourceCode(namespace:'Foo', class:'Bar');
+        // when
+        $this->documentClass('Foo\Bar');
+        // then
+        $this->assertClassDocumented();
     }
 
-    private function assertIsDocumented(string $className, File $project): void
+    private function documentClass(string $str): void
     {
-        $this->document($project, $className, 'Summary.');
-        if ($this->classSummary($project) !== 'Summary.') {
-            $this->fail('Failed to assert that source code was properly documented.');
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->project->singleSummary($str, 'magic value.');
     }
 
-    private function document(File $projectLocation, string $className, string $summary): void
+    private function assertClassDocumented(): void
     {
-        $project = new Project($projectLocation->path);
-        $project->addSummary($className, $summary, null);
-        $project->build();
-    }
-
-    private function sourceCode(string $sourceCode): File
-    {
-        $file = File::temporaryDirectory()->join('file.php');
-        $file->write($sourceCode);
-        return $file;
-    }
-
-    private function classSummary(File $sourceCode): string
-    {
-        $preview = new ProjectPreview($sourceCode);
-        return $preview->classSummary();
+        $this->assertSame(['magic value.'], $this->preview->classSummaries());
     }
 }

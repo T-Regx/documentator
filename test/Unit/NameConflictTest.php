@@ -1,20 +1,21 @@
 <?php
 namespace Test\Unit;
 
-use Documentary\Project;
 use PHPUnit\Framework\TestCase;
+use Test\Fixture;
 
 class NameConflictTest extends TestCase
 {
+    use Fixture\Setup\GhostProject;
+
     /**
      * @test
      */
     public function summaries(): void
     {
-        $project = new Project('');
-        $project->addSummary('foo', 'One.', null);
+        $this->project->summary('foo', 'One.');
         $this->expectExceptionNameConflict('foo');
-        $project->addSummary('foo', 'Two.', null);
+        $this->project->summary('foo', 'Two.');
     }
 
     /**
@@ -22,10 +23,9 @@ class NameConflictTest extends TestCase
      */
     public function hideAndSummary(): void
     {
-        $project = new Project('');
-        $project->hide('foo');
+        $this->project->hide('foo');
         $this->expectExceptionNameConflict('foo');
-        $project->addSummary('foo', 'One.', null);
+        $this->project->summary('foo', 'One.');
     }
 
     /**
@@ -33,15 +33,14 @@ class NameConflictTest extends TestCase
      */
     public function summaryAndHide(): void
     {
-        $project = new Project('');
-        $project->addSummary('bar', 'One.', null);
+        $this->project->summary('bar', 'One.');
         $this->expectExceptionNameConflict('bar');
-        $project->hide('bar');
+        $this->project->hide('bar');
     }
 
     private function expectExceptionNameConflict(string $memberName): void
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Failed to document element '{$memberName}' with multiple summaries.");
+        $this->expectExceptionMessage("Failed to document element '$memberName' with multiple summaries.");
     }
 }
