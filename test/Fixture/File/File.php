@@ -7,7 +7,7 @@ readonly class File
 
     public function __construct(string $path, string...$children)
     {
-        $this->path = \implode('/', [$path, ...$children]);
+        $this->path = \implode(\DIRECTORY_SEPARATOR, [$path, ...$children]);
     }
 
     public static function temporaryDirectory(): self
