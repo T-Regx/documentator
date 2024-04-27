@@ -73,4 +73,22 @@ class PhpDocumentorTest extends TestCase
             ['Selected'],
             $this->filesDescriptions($output));
     }
+
+    /**
+     * @test
+     */
+    public function nonExistentFile(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->phpDocumentor->document(new File('non-existent file'));
+    }
+
+    /**
+     * @test
+     */
+    public function nonExistentFileMessage(): void
+    {
+        $this->expectExceptionMessage('Failed to document non-existent file:');
+        $this->phpDocumentor->document(new File('non-existent file'));
+    }
 }
