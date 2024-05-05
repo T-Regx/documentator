@@ -33,6 +33,11 @@ class Project
             $this->phpDoc(['@internal']));
     }
 
+    public function class(string $className): ProjectClass
+    {
+        return new ProjectClass($this, $className);
+    }
+
     public function build(): void
     {
         foreach ($this->path->projectFiles() as $path) {
