@@ -43,7 +43,7 @@ class SetComment extends NodeVisitorAbstract
     private function parentName(Node $node): ?string
     {
         $parent = $node->getAttribute('parent');
-        if ($parent instanceof Node\Stmt\Class_) {
+        if ($parent instanceof Node\Stmt\ClassLike) {
             return $parent->namespacedName->toCodeString();
         }
         return null;
