@@ -23,12 +23,14 @@ class Project
     public function addSummary(string $memberName, string $summary, string $description = null, string $type = null, string $parent = null): void
     {
         $this->validateSummary($summary);
-        $this->comments->add($memberName, $type, $parent, "/** $summary\n$description */");
+        $this->comments->add($memberName, $type, $parent,
+            $this->phpDoc(\array_filter([$summary, $description])));
     }
 
     public function hide(string $memberName, string $type = null): void
     {
-        $this->comments->add($memberName, $type, null, "/** @internal */");
+        $this->comments->add($memberName, $type, null,
+            $this->phpDoc(['@internal']));
     }
 
     public function build(): void
@@ -67,5 +69,15 @@ class Project
             $traverser->traverse($ast),
             $ast,
             $parser->getTokens());
+    }
+
+    private function phpDoc(array $lines): string
+    {
+        $phpDoc = \implode("\n * ", $lines);
+        return <<<phpDoc
+            /** 
+             * $phpDoc
+             */
+            phpDoc;
     }
 }
