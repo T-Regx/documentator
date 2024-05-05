@@ -20,7 +20,7 @@ class Project
         $this->comments = new Comments();
     }
 
-    public function addSummary(string $memberName, string $summary, ?string $description, string $type = null, string $parent = null): void
+    public function addSummary(string $memberName, string $summary, string $description = null, string $type = null, string $parent = null): void
     {
         $this->validateSummary($summary);
         $this->comments->add($memberName, $type, $parent, "/** $summary\n$description */");
