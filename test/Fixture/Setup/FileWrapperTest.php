@@ -39,6 +39,15 @@ class FileWrapperTest extends TestCase
     /**
      * @test
      */
+    public function topLevelInterface(): void
+    {
+        $this->wrapper->sourceCode(interface:'Something');
+        $this->assertFile('<?php interface Something {  }');
+    }
+
+    /**
+     * @test
+     */
     public function classMethod(): void
     {
         $this->wrapper->sourceCode(class:'Something', methods:['make']);

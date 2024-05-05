@@ -12,16 +12,20 @@ readonly class FileWrapper
     public function sourceCode(
         string $namespace = null,
         string $class = null,
+        string $interface = null,
         array  $methods = [],
-        array $properties = [],
-        array $constants = []): void
+        array  $properties = [],
+        array  $constants = []): void
     {
         $classBody = \implode(' ', [
             ...$this->formatEach($methods, 'function %() {}'),
             ...$this->formatEach($properties, 'var $%;'),
             ...$this->formatEach($constants, 'const % = 2;'),
         ]);
-        $this->write(\trim($this->namespace($namespace) . " class $class { $classBody }"));
+        $this->write(\trim(
+            $this->namespace($namespace) .
+            $this->parent($class, $interface) . " { $classBody }"
+        ));
     }
 
     private function namespace(?string $namespace): string
@@ -30,6 +34,14 @@ readonly class FileWrapper
             return "namespace $namespace;";
         }
         return '';
+    }
+
+    private function parent(?string $class, ?string $interface): string
+    {
+        if ($interface === null) {
+            return " class $class";
+        }
+        return " interface $interface";
     }
 
     public function sourceCodeMany(array $classes, string $method = null): void

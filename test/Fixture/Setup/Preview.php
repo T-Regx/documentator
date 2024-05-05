@@ -19,9 +19,14 @@ readonly class Preview
         return $this->structure()->findMany('/project/file/class/docblock/description');
     }
 
+    public function interfaceSummaries(): array
+    {
+        return $this->structure()->findMany('/project/file/interface/docblock/description');
+    }
+
     public function methodSummaries(): array
     {
-        return $this->structure()->findMany('/project/file/class/method/docblock/description');
+        return $this->structure()->findMany('/project/file/*/method/docblock/description');
     }
 
     public function constantSummaries(): array
