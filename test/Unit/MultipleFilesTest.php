@@ -20,8 +20,8 @@ class MultipleFilesTest extends TestCase
         ]);
         // when
         $project = new Project($projectDirectory->path);
-        $project->addSummary('Foo', 'Lorem.', null);
-        $project->addSummary('Bar', 'Ipsum.', null);
+        $project->addSummary('Foo', 'Lorem.');
+        $project->addSummary('Bar', 'Ipsum.');
         $project->build();
         // then
         $this->assertSame(
@@ -38,7 +38,7 @@ class MultipleFilesTest extends TestCase
         $directory = $this->fileInPath(['nested', 'file.php'], $this->sourceCode('Foo'));
         // when
         $project = new Project($directory->path);
-        $project->addSummary('Foo', 'Winter is coming.', null);
+        $project->addSummary('Foo', 'Winter is coming.');
         $project->build();
         // then
         $this->assertSame(
