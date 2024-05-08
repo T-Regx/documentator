@@ -22,6 +22,11 @@ readonly class ProjectClass
         $this->addMemberSummary($name, $summary, 'constant');
     }
 
+    public function addPropertySummary(string $name, string $summary): void
+    {
+        $this->addMemberSummary($name, $summary, 'property');
+    }
+
     private function addMemberSummary(string $name, string $summary, string $type): void
     {
         $this->project->addSummary(
