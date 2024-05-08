@@ -79,4 +79,18 @@ class ProjectClassTest extends TestCase
         // then
         $this->assertSame([''], $this->preview->propertySummaries());
     }
+
+    /**
+     * @test
+     */
+    public function propertySummary()
+    {
+        // given
+        $this->file->sourceCode(class:'Foo', properties:['bar']);
+        // when
+        $this->project->project->class('Foo')->addPropertySummary('bar', 'Property.');
+        $this->project->project->build();
+        // then
+        $this->assertSame(['Property.'], $this->preview->propertySummaries());
+    }
 }
