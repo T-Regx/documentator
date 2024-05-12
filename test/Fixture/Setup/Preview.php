@@ -48,4 +48,9 @@ readonly class Preview
     {
         return new Xml($this->documentor->document($this->sourceCode));
     }
+
+    public function read(): string
+    {
+        return $this->sourceCode->read();
+    }
 }
