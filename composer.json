@@ -1,4 +1,6 @@
 {
+  "type": "library",
+  "name": "t-regx/documentary",
   "require": {
     "php": ">=7.4.0",
     "nikic/php-parser": "^5.0"
