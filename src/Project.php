@@ -24,13 +24,13 @@ class Project
     {
         $this->validateSummary($summary);
         $this->comments->add($memberName, $type, $parent,
-            $this->phpDoc(\array_filter([$summary, $description])));
+            $this->phpDoc($summary, $description));
     }
 
     public function hide(string $memberName, string $type = null): void
     {
         $this->comments->add($memberName, $type, null,
-            $this->phpDoc(['@internal']));
+            $this->phpDocString(['@internal']));
     }
 
     public function class(string $className): ProjectClass
@@ -76,7 +76,12 @@ class Project
             $parser->getTokens());
     }
 
-    private function phpDoc(array $lines): string
+    private function phpDoc(string $summary, ?string $description): string
+    {
+        return $this->phpDocString(\array_filter(\explode("\n", $summary . "\n" . $description)));
+    }
+
+    private function phpDocString(array $lines): string
     {
         $phpDoc = \implode("\n * ", $lines);
         return <<<phpDoc
